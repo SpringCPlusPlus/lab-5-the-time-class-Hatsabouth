@@ -1,0 +1,30 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Time Class Test
+      id: time-class-test
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Time Class Test
+        setup-command: ''
+        command: make test
+        timeout: 5
+        max-score: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TIME-CLASS-TEST_RESULTS: "${{steps.time-class-test.outputs.result}}"
+      with:
+        runners: time-class-test
